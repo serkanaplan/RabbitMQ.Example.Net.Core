@@ -23,7 +23,10 @@ using var channel = connection.CreateModel();//Bu metod, mesaj göndermek veya a
 // true: Kuyruk, onu dinleyen son abone bağlantısını kapattığında otomatik olarak silinir.
 //     false: Kuyruk, onu dinleyen son abone bağlantısını kapattığında bile silinmez.
 //     arguments: Ek kuyruk argümanları. Özel özellikler ayarlamak için kullanılabilir. Bu örnekte null olarak ayarlanmış, yani ek bir özellik yok.
-channel.QueueDeclare(queue: "hello-queue", false, false, false, arguments: null);
+//channel.QueueDeclare(queue: "hello-queue", false, false, false, arguments: null);
+
+channel.ExchangeDeclare(exchange:"hello-exchange-fanout", type: ExchangeType.Fanout, durable: true, autoDelete: false); 
+
 
 Enumerable.Range(1, 50).ToList().ForEach(x =>
 {
@@ -34,7 +37,9 @@ Enumerable.Range(1, 50).ToList().ForEach(x =>
     // Mesajı RabbitMQ kuyruğuna gönderir. Burada: exchange: Mesajın hangi exchange'e gönderileceğini belirtir. Boş string(default exchange), direkt olarak kuyruğa gönderileceğini ifade eder.
     // routingKey: Mesajın gönderileceği kuyruk adı. basicProperties: Mesajın özelliklerini belirtir. Bu örnekte null bırakılmış.
     // body: Gönderilecek mesajın kendisi (byte dizisi olarak).
-    channel.BasicPublish(exchange: "", routingKey: "hello-queue", basicProperties: null, body: messageBody);
+    // channel.BasicPublish(exchange: "", routingKey: "hello-queue", basicProperties: null, body: messageBody);
+
+    channel.BasicPublish(exchange: "hello-exchange-fanout", routingKey: "hello-queue", basicProperties: null, body: messageBody);
 
     Console.WriteLine($"Mesaj Gonderildi. Gönderilen mesaj: {message}");
 });
