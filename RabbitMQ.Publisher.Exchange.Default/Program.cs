@@ -1,4 +1,4 @@
-﻿
+﻿//default exchange'de sadece kuyruk var.
 using System.Text;
 using RabbitMQ.Client;
 
@@ -11,8 +11,10 @@ var factory = new ConnectionFactory
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 
-//channel.QueueDeclare(queue: "hello-queue", false, false, false, arguments: null);
-channel.ExchangeDeclare(exchange:"hello-exchange-fanout", type: ExchangeType.Fanout, durable: true, autoDelete: false); 
+// durable : true ise mesaj kalıcı(diskte) false ise geçicidir(memoryde)
+// exclusive : true ise başka kanallardan bağlanılabilir
+// autoDelete : false ise kuyruğu dinleyen subscriber down olursa silinmez tekrar ayağa kalktığında kaldığı yerden göndermeye devam eder
+channel.QueueDeclare(queue: "hello-queue",durable: false,exclusive: false,autoDelete: false, arguments: null);
 
 
 Enumerable.Range(1, 50).ToList().ForEach(x =>
@@ -21,8 +23,7 @@ Enumerable.Range(1, 50).ToList().ForEach(x =>
 
     var messageBody = Encoding.UTF8.GetBytes(message);
 
-    // channel.BasicPublish(exchange: "", routingKey: "hello-queue", basicProperties: null, body: messageBody);
-    channel.BasicPublish(exchange: "hello-exchange-fanout", routingKey: "hello-queue", basicProperties: null, body: messageBody);
+    channel.BasicPublish(exchange: "", routingKey: "hello-queue", basicProperties: null, body: messageBody);
 
     Console.WriteLine($"Mesaj Gonderildi. Gönderilen mesaj: {message}");
 });

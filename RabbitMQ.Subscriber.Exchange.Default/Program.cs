@@ -12,8 +12,9 @@ var factory = new ConnectionFactory
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 
-//publisher projesnde bu kuyruk varsa bu satırı silebilirsin. Eğer kuyruk publisher da varsa onu bağlanır yoksa yeni oluşturur.
-// channel.QueueDeclare(queue: "hello-queue", false, false, false, arguments: null);
+//publisher projesnde bu kuyruk varsa bu satırı silebilirsin ama subscriberdan önce publisher projesini çalıştırman gerek yoksa hello-queue diye bi kuyruk oluşmadığı için hata verecektir.
+// Eğer kuyruk publisher da varsa onu bağlanır yoksa yeni oluşturur.
+channel.QueueDeclare(queue: "hello-queue", false, false, false, arguments: null);
 
 channel.BasicQos(0, 10, false);
 
